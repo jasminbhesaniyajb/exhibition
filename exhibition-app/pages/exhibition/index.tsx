@@ -18,21 +18,32 @@ const Exhibition = ({
   const [page, setPage] = useState<number>(1);
   const [hasMore, setHasMore] = useState<boolean>(true);
 
+  interface ExhibitionItem {
+    // id: number;
+  }
+
+  interface ExhibitionItem extends Array<ExhibitionItem> {}
+
   //Api
   const getExhibition = useCallback(async () => {
-    setLoading(true);
-    await APICall("get", EndPoints.exhibition + `?page=${page}`).then(
-      (response) => {
-        if (response.status === 200 && response.data) {
-          let data = response?.data?.data;
-          if (hasMore) {
-            setExhibitionData([...exhibitionData, ...data]);
-            setHasMore(response.data.data.length > 0);
-            setLoading(false);
+    try {
+      setLoading(true);
+      await APICall("get", EndPoints.exhibition + `?page=${page}`).then(
+        (response) => {
+          if (response.status === 200 && response.data) {
+            let data = response?.data?.data;
+            if (hasMore) {
+              setExhibitionData([...exhibitionData, ...data]);
+              setHasMore(response.data.data.length > 0);
+            }
           }
         }
-      }
-    );
+      );
+    } catch (error) {
+      console.log("error", error);
+    } finally {
+      setLoading(false);
+    }
   }, [page]);
 
   //life Cycle method
@@ -129,9 +140,13 @@ const Exhibition = ({
 export default Exhibition;
 
 export async function getServerSideProps() {
-  const response = await APICall("get", EndPoints.exhibition + `?page=1`);
-  if (response.status === 200 && response.data) {
-    let data = response.data.data;
-    return { props: { data } };
+  try {
+    const response = await APICall("get", EndPoints.exhibition + `?page=1`);
+    if (response.status === 200 && response.data) {
+      let data = response.data.data;
+      return { props: { data } };
+    }
+  } catch(error) {
+    console.log("error", error);    
   }
 }

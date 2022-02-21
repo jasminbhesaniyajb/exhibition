@@ -81,13 +81,16 @@ const Exhibition = ({
 export default Exhibition;
 
 export async function getServerSideProps(context: any) {
-  const response = await APICall(
-    "get",
-    EndPoints.exhibition + `/${context.query.id}`
-  );
-
-  if (response.status === 200 && response.data) {
-    let data = response.data.data;
-    return { props: { data } };
+  try {
+    const response = await APICall(
+      "get",
+      EndPoints.exhibition + `/${context.query.id}`
+    );
+    if (response.status === 200 && response.data) {
+      let data = response.data.data;
+      return { props: { data } };
+    }
+  } catch(error) {
+    console.log("error", error);
   }
 }
